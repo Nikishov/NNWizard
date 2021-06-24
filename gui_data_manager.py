@@ -1,70 +1,126 @@
+#!/usr/bin/python3
+#-*- coding: utf-8 -*-
+
+'''
+GUI for the Data Manager
+
+            with open(file_name, 'rb') as file:
+                network_gr = pickle.load(file)
+'''
+
+import os
+import pickle
+import pandastable as pdt
 import tkinter as tkn
-from tkinter import filedialog as fd
 import tkinter.ttk as ttk
+from tkinter import filedialog as fd
+import gui_elements
 
-class DataManager(ttk.Frame):
+'''
+https://icon-icons.com/ru/pack/Innovation-technology/1724
+'''
 
-    def __init__(self, parent, controller):
-        ttk.Frame.__init__(self, parent)
-        self.controller = controller
+class DataManager(tkn.Frame):
 
-        self.pwindow = tkn.PanedWindow(self, orient="vertical")
-        self.pwindow.pack(fill="both", expand=True)
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        self.controller = master.master
 
         ## Панель вкладок
-        top_part = ttk.Notebook(self.pwindow)
-        self.pwindow.add(top_part ,stretch="always")
+        top_part = ttk.Notebook(self)
+        top_part.pack(fill=tkn.X)
 
         # --- Загрузка
-        load_tab = ttk.Frame(top_part)
-        top_part.add(load_tab, text ='Загрузка')
-        load_tab.grid_rowconfigure(0, weight=1)
-        load_tab.grid_columnconfigure(0, weight=1)
+        load_tab = tkn.Frame(top_part)
+        top_part.add(load_tab, text ='Import')
+        #load_tab.grid_rowconfigure(0, weight=1)
+        #load_tab.grid_columnconfigure(0, weight=1)
 
-        load_button = ttk.Button(load_tab, text='load set', command=self.show_load_set_window)
-        load_button.pack()
+        self.img_import = tkn.PhotoImage(file=os.path.join(os.getcwd(),'icons','import.png'))
+        import_button = ttk.Button(load_tab, image=self.img_import, command=self.click_import_button)
+        import_button.pack(side=tkn.LEFT)
+        gui_elements.create_alt_window(import_button,'Import Data')
+
+        self.img_clear = tkn.PhotoImage(file=os.path.join(os.getcwd(),'icons','clear.png'))
+        clear_button = ttk.Button(load_tab, image=self.img_clear, command=self.click_clear_button)
+        clear_button.pack(side=tkn.LEFT)
+        gui_elements.create_alt_window(clear_button,'Clear Data')
 
         # --- Очистка
-        clean_tab = ttk.Frame(top_part)
+        clean_tab = tkn.Frame(top_part)
         top_part.add(clean_tab, text ='Очистка')
-        clean_tab.grid_rowconfigure(0, weight=1)
-        clean_tab.grid_columnconfigure(0, weight=1)
+        #clean_tab.grid_rowconfigure(0, weight=1)
+        #clean_tab.grid_columnconfigure(0, weight=1)
 
         clear_button = ttk.Button(clean_tab, text='clear set', command=self.clear_set)
         clear_button.pack()
 
         # --- Трансформация
-        transf_tab = ttk.Frame(top_part)
+        transf_tab = tkn.Frame(top_part)
         top_part.add(transf_tab, text ='Трансформация')
-        transf_tab.grid_rowconfigure(0, weight=1)
-        transf_tab.grid_columnconfigure(0, weight=1)
+        #transf_tab.grid_rowconfigure(0, weight=1)
+        #transf_tab.grid_columnconfigure(0, weight=1)
 
         transf_button = ttk.Button(transf_tab, text='transform set', command=self.transf_set)
         transf_button.pack()
 
         # --- Сохранение
-        save_tab = ttk.Frame(top_part)
-        top_part.add(save_tab, text ='Сохранение')
-        save_tab.grid_rowconfigure(0, weight=1)
-        save_tab.grid_columnconfigure(0, weight=1)
+        save_tab = tkn.Frame(top_part)
+        top_part.add(save_tab, text ='Export')
+        #save_tab.grid_rowconfigure(0, weight=1)
+        #save_tab.grid_columnconfigure(0, weight=1)
 
-        save_button = ttk.Button(save_tab, text='save set', command=self.save_set)
-        save_button.pack()
+        button_export_pickle = ttk.Button(save_tab, text='Сохранить pickle', command=lambda: self.click_export_button('pickle'))
+        button_export_pickle.pack()
+
+        button_export_csv = ttk.Button(save_tab, text='Сохранить csv', command=lambda: self.click_export_button('csv'))
+        button_export_csv.pack()
 
         ## Информация о датасете
-        bottom_part = ttk.Frame(self.pwindow)
-        self.pwindow.add(bottom_part ,stretch="always")
+        bottom_part = ttk.Frame(self)
+        bottom_part.pack(fill=tkn.BOTH, expand=True)
 
-        bottom_part.grid_rowconfigure(0, weight=1)
-        bottom_part.grid_columnconfigure(0, weight=1)
+        self.current_table = pdt.Table(bottom_part, dataframe=None, showtoolbar=0, showstatusbar=1)
+        self.current_table.enable_menus = False
+        self.current_table.grid(row=0, column=0, sticky=tkn.NSEW)
+        self.current_table.show()
 
-        #todo: заменить текст на таблицу
-        self.dataset_viewer = tkn.Text(bottom_part, width=50, height=20)
-        #self.dataset_info.config(state=ttk.DISABLED)
-        scy = ttk.Scrollbar(bottom_part,command=self.dataset_viewer.yview)
-        self.dataset_viewer.configure(yscrollcommand=scy.set)
-        self.dataset_viewer.grid(row=0, column=0, sticky='news')
-        scy.grid(row=0, column=1, sticky='ns')
+    def click_export_button(self, export_type):
+        '''
+        датасет разбивается здесь
+        второй файл можно добавить здесь
+
+        '''
+        #open save file dialog получить имя файла для экспорта
+        #file_path =
+
+        if export_type == 'csv':
+            # просто сохраняем последний вариант таблицы
+            pass
+        elif export_type == 'pickle':
+            #1 Спросить нужно ли добавить тестовую выборку или разбить датасет
+            #2 Проверить датасет на выполнение условий
+            #3 Только потом сохранить
+            if self.controller.data.check_dataset(processed_data_set) == True:
+                '''
+                Это всё относится к хранилищу данных
+
+                '''
+                # датасет прошел проверку
+                with open(file_path, 'wb') as file:
+                    pickle.dump(processed_data_set, file, pickle.HIGHEST_PROTOCOL)
+                    print('Результаты эксперимента сохранены!')
+                    self.controller.update_message('Сеть успешно пересохранена \n')
+
+    def click_import_button(self):
+
+        self.current_table.importCSV(dialog=True)
+        self.data_storage.set_csv_data(self.current_table.model.df)
+
+    def click_clear_button(self):
+        #todo: через датаменеджер!!!
+
+        self.current_table.clearTable()
 
     def clear_set(self):
         # create local copy of a dataset

@@ -13,17 +13,15 @@ import main_back as main_back
 import gui
 
 class MainWindow(tkn.Tk):
-
-    def __init__(self, *args, **kwargs):
-
+    def __init__(self):
         # general settings
-        tkn.Tk.__init__(self, *args, **kwargs)
+        super().__init__()
         tkn.Tk.wm_title(self, main_back.WINDOW_NAME)
         tkn.Tk.wm_resizable(self, width=main_back.RESIZEABLE_FLAG, height=main_back.RESIZEABLE_FLAG)
         if main_back.MAXIMIZE_WINDOW:
             screen_height = self.winfo_screenheight()
             screen_width = self.winfo_screenwidth()
-            tkn.Tk.wm_geometry(self, str(int(screen_width))+'x'+str(screen_height)+'+0+0')
+            tkn.Tk.wm_geometry(self, str(int(screen_width))+'x'+str(screen_height))
         self.set_defaults() # setting up default values
         self.show_GUI() # showing main parts of GUI
 

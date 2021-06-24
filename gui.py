@@ -5,14 +5,15 @@
 Main GUI structure
 '''
 
+import os
 import tkinter as tkn
-import gui_elements as gel
-from gui_data_manager import DataManager
-#todo: импорт интерфейсов для отдельных менеджеров
+import tkinter.ttk as ttk
+import gui_elements
 
-'''
-https://stackoverflow.com/questions/26097811/image-pyimage2-doesnt-exist
-'''
+# импорт интерфейсов для отдельных менеджеров
+from gui_data_manager import DataManager
+from gui_model_creator import ModelCreator
+from gui_visualisation import Visualisation
 
 class GUI():
 
@@ -27,44 +28,48 @@ class GUI():
         '''
         Main frame
         '''
-        self.main_frame = tkn.Frame(self.main_window, bg='red')
-        self.main_frame.pack(fill='both', expand=True)
+        self.main_frame = tkn.Frame(self.main_window)
+        self.main_frame.pack(fill=tkn.BOTH, expand=True)
 
     def show_toolbar(self):
         '''
         Toolbar
         '''
-        toolbar = tkn.Frame(self.main_frame, bd=1, relief=tkn.RAISED, bg='green' )
+        toolbar = tkn.Frame(self.main_frame, bd=1, relief=tkn.RAISED)
         toolbar.pack(side=tkn.TOP, fill=tkn.X)
 
         # buttons launch modules
-        #todo: добавить на кнопки картинки
-        button_data = tkn.Button(toolbar, text='DataManager', command=lambda: self.show_tool(DataManager))
+        self.img_data = tkn.PhotoImage(file=os.path.join(os.getcwd(),'icons','data.png'))
+        button_data = ttk.Button(toolbar, image=self.img_data, command=lambda: self.show_tool(DataManager))
         button_data.grid(row=0, column=0)
+        gui_elements.create_alt_window(button_data,'Data Manager')
 
-        button_model = tkn.Button(toolbar, text='ModelCreator', command=lambda: self.show_tool(ModelCreator))
+        self.img_model = tkn.PhotoImage(file=os.path.join(os.getcwd(),'icons','model.png'))
+        button_model = ttk.Button(toolbar, image=self.img_model, command=lambda: self.show_tool(ModelCreator))
         button_model.grid(row=0, column=1)
+        gui_elements.create_alt_window(button_model,'Model Manager')
 
-        button_vis = tkn.Button(toolbar, text='Visualisation', command=lambda: self.show_tool(Visualisation))
-        button_vis.grid(row=0, column=2)
-
-        #todo: для каждого менеджера своя кнопка
+        #button_vis = ttk.Button(toolbar, text='Visualisation', command=lambda: self.show_tool(Visualisation))
+        #button_vis.grid(row=0, column=2)
 
     def show_tools_frame(self):
         '''
         Frame for each tool
         '''
-        self.tools_frame = tkn.Frame(self.main_frame, bd=1, relief=tkn.RAISED)
-        self.tools_frame.pack(side=tkn.TOP, fill=tkn.X)
+        self.tools_frame = tkn.Frame(self.main_frame)
+        self.tools_frame.pack(side=tkn.BOTTOM, fill=tkn.BOTH, expand=True)
+        self.tools_frame.columnconfigure(0, weight=1)
+        self.tools_frame.rowconfigure(0, weight=1)
 
         self.tools_frames = {}
-        for F in (DataManager, ModelCreator, Visualisation): #todo: добавить ссылки на классы всех менеджеров
-            frame = F(self.tools_frame, self)
+        for F in (PromptWindow, DataManager, ModelCreator, Visualisation): #todo: добавить ссылки на классы всех менеджеров
+            frame = F(self.tools_frame)
+            frame.data_storage = self.data
             self.tools_frames[F] = frame
             frame.grid(row=0, column=0, sticky=tkn.NSEW)
 
         # указываем страницу, загружаемую по умолчанию
-        self.show_tool(DataManager)
+        self.show_tool(PromptWindow)
 
     def show_tool(self, tool_class_name):
         '''
@@ -73,19 +78,19 @@ class GUI():
         self.current_frame = self.tools_frames[tool_class_name]
         self.current_frame.tkraise()
 
-#todo: вынести в отдельные файлы
-class ModelCreator(tkn.Frame):
+class PromptWindow(tkn.Frame):
 
-    def __init__(self, parent, controller):
-        tkn.Frame.__init__(self, parent)
-        self.controller = controller
-        l = tkn.Label(self,text = 'Hello ModelCreator!')
-        l.pack()
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        self.controller = master.master
 
-class Visualisation(tkn.Frame):
+        frame_prompt = tkn.Frame(self)
+        frame_prompt.place(relx=0.5, rely=0.5, anchor=tkn.CENTER)
 
-    def __init__(self, parent, controller):
-        tkn.Frame.__init__(self, parent)
-        self.controller = controller
-        l = tkn.Label(self,text = 'Hello Visualisation!')
-        l.pack()
+        self.img_brain = tkn.PhotoImage(file=os.path.join(os.getcwd(),'icons','brain.png'))
+        label_brain = tkn.Label(frame_prompt, image=self.img_brain)
+        label_brain.pack(side=tkn.LEFT)
+
+        self.img_prompt = tkn.PhotoImage(file=os.path.join(os.getcwd(),'icons','prompt.png'))
+        label_prompt = tkn.Label(frame_prompt, image=self.img_prompt)
+        label_prompt.pack(side=tkn.LEFT)

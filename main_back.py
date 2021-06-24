@@ -14,7 +14,7 @@ import importlib
 import pandas as pd
 
 WINDOW_NAME = 'Neural Network Wizard'
-MAXIMIZE_WINDOW = False
+MAXIMIZE_WINDOW = True
 ABOUT_INFORMATION = '''Neural Network Wizard. 2021'''
 RESIZEABLE_FLAG = True
 #TOOLBARS_PATH = 'tools'
@@ -35,8 +35,11 @@ class DataStorage():
 
     file_path = ''
 
-    def load_csv(self):
+    def load_csv_pandas(self):
         self.csv_data = pd.read_csv(self.file_path)
+
+    def set_csv_data(self, new_csv_data):
+        self.csv_data = new_csv_data.copy()
 
     def get_csv_info(self):
         buffer = io.StringIO()
@@ -46,6 +49,11 @@ class DataStorage():
     def head_csv(self):
         result = self.csv_data.head()
         return result
+
+    def check_dataset(self, dataset):
+        '''
+        '''
+        pass
 
 if __name__ == '__main__':
     pass
